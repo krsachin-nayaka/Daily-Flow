@@ -1,0 +1,34 @@
+# Python bytecode and caches
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Virtual environments
+.venv/
+env/
+venv/
+ENV/
+
+# Database files
+*.db
+*.sqlite3
+dailyflow.db
+test.db
+
+# Environment variables
+.env
+.env.local
+
+# IDEs and OS files
+.vscode/
+.idea/
+*.swp
+.DS_Store
+
+# Node / Vite (if present in root)
+node_modules/
+dist/

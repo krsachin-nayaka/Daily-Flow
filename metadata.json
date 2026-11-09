@@ -1,0 +1,6 @@
+{
+  "name": "DailyFlow",
+  "description": "A clean, modern personal task management application built with FastAPI, SQLAlchemy, SQLite, Pydantic, and vanilla frontend.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

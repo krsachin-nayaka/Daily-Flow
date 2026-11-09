@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>DailyFlow – Personal Task Manager</title>
+  <meta name="description" content="A clean, modern personal task management application built with FastAPI, SQLAlchemy, and SQLite.">
+  <meta property="og:title" content="DailyFlow – Personal Task Manager">
+  <meta property="og:description" content="A clean, modern personal task management application built with FastAPI, SQLAlchemy, and SQLite.">
+  <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+  <div class="app-layout">
+    <!-- Sidebar Navigation -->
+    <aside class="sidebar">
+      <div class="brand">
+        <div class="brand-icon">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>
+          </svg>
+        </div>
+        <div class="brand-text">
+          <h1>DailyFlow</h1>
+          <span class="brand-badge">FastAPI + SQLite</span>
+        </div>
+      </div>
+
+      <nav class="nav-menu">
+        <div class="nav-section-title">Views</div>
+        <button class="nav-item active" data-view="all">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <rect width="7" height="7" x="3" y="3" rx="1"/>
+            <rect width="7" height="7" x="14" y="3" rx="1"/>
+            <rect width="7" height="7" x="14" y="14" rx="1"/>
+            <rect width="7" height="7" x="3" y="14" rx="1"/>
+          </svg>
+          <span>All Tasks</span>
+          <span class="nav-badge" id="badge-all">0</span>
+        </button>
+
+        <button class="nav-item" data-view="today">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <rect width="18" height="18" x="3" y="4" rx="2" ry="2"/>
+            <line x1="16" y1="2" x2="16" y2="6"/>
+            <line x1="8" y1="2" x2="8" y2="6"/>
+            <line x1="3" y1="10" x2="21" y2="10"/>
+          </svg>
+          <span>Today's Tasks</span>
+          <span class="nav-badge" id="badge-today">0</span>
+        </button>
+
+        <button class="nav-item" data-view="pending">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="10"/>
+            <polyline points="12 6 12 12 16 14"/>
+          </svg>
+          <span>Pending</span>
+          <span class="nav-badge" id="badge-pending">0</span>
+        </button>
+
+        <button class="nav-item" data-view="completed">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
+            <polyline points="22 4 12 14.01 9 11.01"/>
+          </svg>
+          <span>Completed</span>
+          <span class="nav-badge" id="badge-completed">0</span>
+        </button>
+
+        <div class="nav-section-title">Categories</div>
+        <div class="category-filters" id="category-filters">
+          <button class="cat-pill active" data-category="">All</button>
+          <button class="cat-pill" data-category="DSA">DSA</button>
+          <button class="cat-pill" data-category="Python">Python</button>
+          <button class="cat-pill" data-category="AI/ML">AI/ML</button>
+          <button class="cat-pill" data-category="College">College</button>
+          <button class="cat-pill" data-category="Gym">Gym</button>
+          <button class="cat-pill" data-category="Personal">Personal</button>
+        </div>
+      </nav>
+
+      <div class="sidebar-footer">
+        <a href="/docs" target="_blank" rel="noopener noreferrer" class="docs-link">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1-2.5-2.5Z"/>
+            <path d="M6 6h10"/>
+            <path d="M6 10h10"/>
+          </svg>
+          <span>Interactive API Docs (/docs)</span>
+        </a>
+      </div>
+    </aside>
+
+    <!-- Main Content Area -->
+    <main class="main-content">
+      <!-- Top Header -->
+      <header class="top-header">
+        <div class="header-left">
+          <h2 id="current-view-title">All Tasks</h2>
+          <p class="current-date" id="current-date-display"></p>
+        </div>
+
+        <div class="header-actions">
+          <div class="search-box">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="11" cy="11" r="8"/>
+              <path d="m21 21-4.3-4.3"/>
+            </svg>
+            <input type="text" id="search-input" placeholder="Search tasks..." aria-label="Search tasks">
+          </div>
+
+          <div class="priority-filter-box">
+            <select id="priority-filter-select" aria-label="Filter by priority">
+              <option value="">All Priorities</option>
+              <option value="High">High</option>
+              <option value="Medium">Medium</option>
+              <option value="Low">Low</option>
+            </select>
+          </div>
+
+          <button class="btn btn-primary" id="btn-open-create-modal">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <line x1="12" y1="5" x2="12" y2="19"/>
+              <line x1="5" y1="12" x2="19" y2="12"/>
+            </svg>
+            <span>New Task</span>
+          </button>
+        </div>
+      </header>
+
+      <!-- Stats Overview Row -->
+      <section class="stats-grid">
+        <div class="stat-card">
+          <div class="stat-icon icon-total">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <rect width="18" height="18" x="3" y="3" rx="2"/>
+              <path d="m9 12 2 2 4-4"/>
+            </svg>
+          </div>
+          <div class="stat-data">
+            <div class="stat-value" id="stat-total">0</div>
+            <div class="stat-label">Total Tasks</div>
+          </div>
+        </div>
+
+        <div class="stat-card">
+          <div class="stat-icon icon-completed">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
+              <polyline points="22 4 12 14.01 9 11.01"/>
+            </svg>
+          </div>
+          <div class="stat-data">
+            <div class="stat-value" id="stat-completed">0</div>
+            <div class="stat-label">Completed</div>
+          </div>
+        </div>
+
+        <div class="stat-card">
+          <div class="stat-icon icon-pending">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="12" cy="12" r="10"/>
+              <polyline points="12 6 12 12 16 14"/>
+            </svg>
+          </div>
+          <div class="stat-data">
+            <div class="stat-value" id="stat-pending">0</div>
+            <div class="stat-label">Pending</div>
+          </div>
+        </div>
+
+        <div class="stat-card progress-card">
+          <div class="progress-header">
+            <span class="stat-label">Today's Completion</span>
+            <span class="progress-percent" id="stat-daily-percent">0%</span>
+          </div>
+          <div class="progress-bar-bg">
+            <div class="progress-bar-fill" id="daily-progress-fill" style="width: 0%;"></div>
+          </div>
+          <div class="progress-subtext" id="daily-progress-subtext">0 of 0 tasks done today</div>
+        </div>
+      </section>
+
+      <!-- Task List Container -->
+      <section class="tasks-container">
+        <div class="tasks-header">
+          <span class="tasks-count-text" id="tasks-count-text">Showing 0 tasks</span>
+        </div>
+
+        <div class="task-list" id="task-list">
+          <!-- Dynamically populated via app.js -->
+        </div>
+
+        <!-- Empty State -->
+        <div class="empty-state" id="empty-state" style="display: none;">
+          <div class="empty-icon">
+            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+              <circle cx="12" cy="12" r="10"/>
+              <line x1="12" y1="8" x2="12" y2="12"/>
+              <line x1="12" y1="16" x2="12.01" y2="16"/>
+            </svg>
+          </div>
+          <h3>No tasks found</h3>
+          <p id="empty-state-message">Get started by creating your first task.</p>
+          <button class="btn btn-secondary" id="btn-empty-create">Create a Task</button>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <!-- Task Modal (Create & Edit) -->
+  <div class="modal-backdrop" id="task-modal" style="display: none;">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3 id="modal-title">Create New Task</h3>
+        <button class="btn-close" id="btn-close-modal" aria-label="Close modal">&times;</button>
+      </div>
+
+      <form id="task-form">
+        <input type="hidden" id="task-id">
+
+        <div class="form-group">
+          <label for="task-title-input">Task Title <span class="required">*</span></label>
+          <input type="text" id="task-title-input" required placeholder="e.g. Implement Binary Search Tree" maxlength="200">
+        </div>
+
+        <div class="form-group">
+          <label for="task-desc-input">Description</label>
+          <textarea id="task-desc-input" rows="3" placeholder="Add any details, notes, or sub-steps..."></textarea>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="task-category-select">Category</label>
+            <select id="task-category-select">
+              <option value="DSA">DSA</option>
+              <option value="Python">Python</option>
+              <option value="AI/ML">AI/ML</option>
+              <option value="College">College</option>
+              <option value="Gym">Gym</option>
+              <option value="Personal" selected>Personal</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="task-priority-select">Priority</label>
+            <select id="task-priority-select">
+              <option value="High">High Priority</option>
+              <option value="Medium" selected>Medium Priority</option>
+              <option value="Low">Low Priority</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="task-due-date-input">Due Date</label>
+          <div class="due-date-row">
+            <input type="date" id="task-due-date-input">
+            <button type="button" class="btn-shortcut" id="btn-due-today">Today</button>
+            <button type="button" class="btn-shortcut" id="btn-due-tomorrow">Tomorrow</button>
+          </div>
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" id="btn-cancel-modal">Cancel</button>
+          <button type="submit" class="btn btn-primary" id="btn-save-task">Save Task</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Delete Confirmation Modal -->
+  <div class="modal-backdrop" id="delete-modal" style="display: none;">
+    <div class="modal-card modal-confirm">
+      <h3>Delete Task</h3>
+      <p>Are you sure you want to delete <strong id="delete-task-title"></strong>? This action cannot be undone.</p>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" id="btn-cancel-delete">Cancel</button>
+        <button type="button" class="btn btn-danger" id="btn-confirm-delete">Delete</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Notification Container -->
+  <div class="toast-container" id="toast-container"></div>
+
+  <!-- Vanilla JavaScript -->
+  <script src="/static/js/app.js"></script>
+</body>
+</html>
